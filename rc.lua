@@ -166,21 +166,32 @@ awful.rules.rules = {
        keys=windowkeys, buttons=windowbuttons,
        border_width=beautiful.border_width,
        border_color=beautiful.border_color
-   }},
-   --{rule={class="Thunderbird"}, properties={tag=tags["main"]}},
-   --{rule={class="Opera"}, properties={tag=tags["www"]}},
-   --{rule={class="Emacs"}, properties={tag=tags["dev"]}},
-   --{rule={name={"wpa_gui"}}, properties={tag=tags["bkg"]}},
-   --{rule={name={"pavucontrol"}}, properties={tag=tags["bkg"]}}
+   }}
 }
 
 --- Signal handling
 client.connect_signal("manage", function(c, startup)
-                         -- Setup title bar
-                         local title = awful.titlebar.widget.titlewidget(c)
-                         title:set_align("center")
-                         awful.titlebar(c):set_widget(title)
+                         local wants_titlebar = true
                          
+                         -- Classes
+                         if c.class == "Wine" then
+                            c.border_width = 0
+                            c.floating = true
+                            wants_titlebar = false
+                         elseif c.class == "Thunderbird" then c.tag = tags["main"]
+                         elseif c.class == "Opera" then       c.tag = tags["www"]
+                         elseif c.class == "Emacs" then       c.tag = tags["dev"]
+                         elseif c.name == "wpa_gui" then      c.tag = tags["bkg"]
+                         elseif c.name == "pavucontrol" then  c.tag = tags["bkg"]
+                         end
+                         
+                         -- Setup title bar
+                         if wants_titlebar then
+                            local title = awful.titlebar.widget.titlewidget(c)
+                            title:set_align("center")
+                            awful.titlebar(c):set_widget(title)
+                         end
+                            
                          -- Fix placement
                          if not startup then
                             awful.client.setslave(c)
